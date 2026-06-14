@@ -1,0 +1,23 @@
+Component,Quantity,Unit Cost (INR),Total (INR),Supplier,Purpose,Notes
+Raspberry Pi 4B 4GB,1,6500,6500,RoboticsDNA / Amazon,Main AI compute,Can use Pi 3B+ to save cost
+Arduino Mega 2560,1,900,900,Amazon / Robu,Motor + sensor controller,
+RPLiDAR A2M8,1,8000,8000,Amazon,2D LiDAR scanner,12m range 4000pts/sec
+STM32F103C8T6 Blue Pill,2,120,240,Amazon,Sensor node MCU,
+OV5647 Pi Camera V2,2,700,1400,Amazon,Visual inspection front + rear,
+SX1278 LoRa Module 433MHz,3,350,1050,Amazon / Robu,Long-range comms,3 = 2 sensor nodes + 1 base
+4S LiPo 5000mAh XT60,1,2200,2200,HobbyKing / Amazon,Robot power,
+L298N Motor Driver,2,150,300,Amazon,Caterpillar drive,
+Caterpillar Track + DC Motors,1,1200,1200,Amazon Robot kit,Chassis drive system,
+Piezoelectric Vibration Sensor,10,40,400,Amazon,Track vibration sensing,
+ADS1115 16-bit ADC,2,180,360,Amazon / Robu,High-precision sensor reading,
+IRF540N N-Channel MOSFET,4,25,100,Amazon,Relay/actuator control,
+AMS1117 3.3V Regulator,5,10,50,Amazon,PCB power regulation,
+Electromagnetic Relay 5V,2,80,160,Amazon,Emergency stopper actuator,
+SG90 Servo (camera pan),2,110,220,Amazon,Camera pan/tilt mount,
+GPS Module NEO-6M,1,350,350,Amazon,Robot GPS positioning,
+10kΩ Resistors (pack),1,50,50,Amazon,Pull-ups and dividers,
+100nF Capacitors (pack),1,80,80,Amazon,Decoupling,
+PCB Fabrication JLCPCB 5x,2,400,800,JLCPCB,Custom sensor node + robot hat PCBs,2-layer 100x100mm
+PVC Pipe Rail (mock track),2,200,400,Hardware store,Prototype demo track,
+Misc (connectors wire chassis),1,1500,1500,Local,Hardware and assembly,
+TOTAL,,,,,,23310
