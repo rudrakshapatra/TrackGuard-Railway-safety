@@ -1,0 +1,39 @@
+# TrackGuard AI — System Architecture
+
+## Overview
+3-layer autonomous railway safety ecosystem:
+
+**Layer 1 — Citizen Safety App (PWA)**
+- React + Vite PWA, works offline
+- Leaflet.js station map with amenity overlays
+- YOLOv8 hazard classifier on uploaded images
+- WebSocket real-time alerts
+- FastAPI backend + PostgreSQL + PostGIS
+
+**Layer 2 — Autonomous Inspection Robot**
+- Raspberry Pi 4B (AI) + Arduino Mega (motors)
+- RPLiDAR A2M8: 2D scans → fused into 3D point cloud
+- YOLOv8 on range-image detects track faults
+- Caterpillar tracks for ballast terrain navigation
+- LoRa SX1278 for long-range telemetry (no 4G needed)
+
+**Layer 3 — Smart Sensor Network**
+- STM32F103 nodes every 500m along track
+- ADS1115 reads piezoelectric vibration sensors
+- Threshold crossing → emergency relay actuation → LoRa alert
+- PTZ cameras at junctions with edge-AI trespasser detection
+
+## Data Flow
+```
+Citizen App → FastAPI → PostgreSQL → Dashboard
+Robot LiDAR → AI → FastAPI → Dashboard + Alert
+Sensor Node → LoRa → Gateway → FastAPI → Emergency Stopper
+```
+
+## Fault Detection Pipeline
+1. RPLiDAR sweeps at 10Hz (4000 pts/scan)
+2. Encoder odometry fuses sweeps into 3D point cloud
+3. 3D cloud → range image (64×360 px)
+4. YOLOv8 classifies: crack / gap / weld-break / alignment / normal
+5. GPS-tagged fault → API → maintenance ticket
+6. Robot stops if fault within 0.5m
