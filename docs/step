@@ -1,0 +1,159 @@
+Step 1: Prepare the Power System
+Mount the 4S LiPo (14.8V, 5000mAh) securely in the caterpillar chassis bay using a velcro strap or battery tray. Connect the LiPo positive terminal to the MP1584 buck converter VIN, and LiPo negative to buck converter GND. Adjust the buck converter output potentiometer to exactly 5.0V (verify with a multimeter) before connecting anything else.
+
+Components:
+
+4S LiPo Battery 14.8V 5000mAh
+MP1584 Buck Converter
+Tips
+Use 14AWG or thicker silicone wire for the LiPo main rails — at 43A peak motor current, thin wire will heat up.
+Warnings
+NEVER short the LiPo terminals — fire/explosion risk.
+Keep a LiPo-safe bag nearby during first power-on.
+Do NOT power the system before the buck output is confirmed at 5.0V.
+Step 2: Wire the High-Current Motor Rail
+Run 14.8V directly from the LiPo B+ terminal to the B+ input of both BTS7960 motor driver modules. Connect all GND (B-) terminals — BTS7960 left, BTS7960 right, and buck GND — to a shared ground bus.
+
+Components:
+
+4S LiPo Battery 14.8V 5000mAh
+BTS7960 43A H-Bridge Motor Driver
+BTS7960 43A H-Bridge Motor Driver
+Tips
+Add a 100µF capacitor across the B+ / GND of each BTS7960 to suppress inductive spikes when braking.
+Warnings
+Use appropriately rated wire (14AWG minimum) on all motor power connections.
+Do NOT connect the 14.8V rail to any ESP32 or logic pin.
+Step 3: Wire the DRV8825 Stepper Driver Motor Rail
+Connect the DRV8825 VMOT pin to the LiPo 14.8V rail (B+). Connect both GND pins of the DRV8825 to the common ground bus. IMPORTANT: Solder a 100µF electrolytic capacitor (rated ≥25V) between VMOT and GND as close to the DRV8825 as possible to protect against back-EMF voltage spikes from the NEMA17.
+
+Components:
+
+DRV8825 Stepper Driver
+4S LiPo Battery 14.8V 5000mAh
+Tips
+Set the DRV8825 current limit via the VREF potentiometer before connecting the NEMA17. Target VREF = (Motor rated current × 2) / 2. For a typical 1.5A NEMA17, set VREF ≈ 0.75V.
+Warnings
+Always install the VMOT capacitor — failure to do so can destroy the DRV8825 instantly when the motor is plugged in or power is cycled.
+Step 4: Connect the NEMA17 to the DRV8825
+Connect the four NEMA17 motor wires to the DRV8825 output terminals: coil A pair to 1A/1B and coil B pair to 2A/2B. Refer to your motor's datasheet to identify coil pairs (use a multimeter in continuity mode — pins in the same coil pair will beep).
+
+Components:
+
+Nema 17
+DRV8825 Stepper Driver
+Tips
+Incorrect coil pairing just reverses direction or causes no motion — it won't damage the driver. Swap A+/A- or B+/B- if behavior is wrong.
+Step 5: Wire DC Motors to BTS7960 Drivers
+Connect the left track DC motor terminals to the M+ and M- output of the left BTS7960. Connect the right track DC motor to the right BTS7960. Polarity determines forward direction — you can swap M+ and M- to reverse a track if needed in software.
+
+Components:
+
+High-Torque DC Motor (Left Track)
+High-Torque DC Motor (Right Track)
+BTS7960 43A H-Bridge Motor Driver
+BTS7960 43A H-Bridge Motor Driver
+Tips
+Hot-glue or cable-tie motor wires to the chassis to avoid snag during track movement.
+Step 6: Wire Logic Power (5V from Buck) to Modules
+From the MP1584 buck converter VOUT (5V): Run 5V to the ESP32 VIN/5V pin (or USB input via regulator — check your DevKit board's 5V rail pin). Also connect 5V to the VCC of both BTS7960 logic inputs and to the MCP2515 VCC. Connect all module GNDs to the common ground bus.
+
+Components:
+
+MP1584 Buck Converter
+MCP2515 CAN Bus Module (TJA1050)
+BTS7960 43A H-Bridge Motor Driver
+BTS7960 43A H-Bridge Motor Driver
+Tips
+The ESP32 DevKit v1 can be powered via its VIN pin (accepts 5V from the buck) or via USB (for development only).
+Warnings
+Do NOT connect 5V to the ESP32 3.3V pin — that pin is an output, not an input.
+Step 7: Wire MCP2515 CAN Module to ESP32 (SPI)
+Connect MCP2515 to the ESP32 SPI bus:
+- MCP2515 SCK → ESP32 GPIO18
+- MCP2515 MISO → ESP32 GPIO19
+- MCP2515 MOSI → ESP32 GPIO23
+- MCP2515 CS → ESP32 GPIO5
+- MCP2515 INT → ESP32 GPIO4
+- MCP2515 GND → Common GND
+- MCP2515 VCC → 5V rail
+
+Connect MCP2515 CANH and CANL to the CAN network bus. Add a 120Ω resistor between CANH and CANL at each end of the CAN bus.
+
+Components:
+
+MCP2515 CAN Bus Module (TJA1050)
+Warnings
+The MCP2515 module runs on 5V but the ESP32 is 3.3V only. SPI signal lines (SCK, MOSI, CS, INT) and MISO must be level-shifted. Use a BSS138-based bidirectional level shifter on all five SPI/INT lines to protect the ESP32 GPIOs from 5V back-drive on MISO/INT.
+Step 8: Wire BNO055 IMU to ESP32 (I2C)
+Connect the BNO055 IMU to the ESP32 I2C bus:
+- BNO055 VIN → ESP32 3.3V rail
+- BNO055 GND → Common GND
+- BNO055 SDA → ESP32 GPIO21
+- BNO055 SCL → ESP32 GPIO22
+
+Add 4.7kΩ pull-up resistors from SDA and SCL to 3.3V if they are not already on the BNO055 breakout board.
+
+Components:
+
+BNO055 9-Axis IMU
+Tips
+The BNO055 Adafruit breakout already includes pull-ups and a 3.3V regulator. If using a bare module, add pull-ups manually.
+Step 9: Wire DRV8825 Logic to ESP32
+Connect the DRV8825 signal pins to the ESP32:
+- DRV8825 STEP → ESP32 GPIO26
+- DRV8825 DIR → ESP32 GPIO27
+- DRV8825 VDD → ESP32 3.3V rail
+- DRV8825 GND → Common GND
+
+The DRV8825 VDD (logic supply) is 3.3V compatible — no level shifting needed here.
+
+Components:
+
+DRV8825 Stepper Driver
+Tips
+Leave DRV8825 EN pin unconnected (it defaults to enabled) unless you want software sleep mode.
+Step 10: Wire BTS7960 PWM and Enable Pins to ESP32
+Connect BTS7960 PWM and enable pins to ESP32 GPIOs:
+
+Left driver:
+- RPWM → GPIO32, LPWM → GPIO33
+- R_EN → GPIO25, L_EN → GPIO16
+
+Right driver:
+- RPWM → GPIO13, LPWM → GPIO14
+- R_EN → GPIO17, L_EN → GPIO15
+
+The BTS7960 logic input threshold accepts 3.3V HIGH — level shifting is NOT strictly required, but adding 3.3V-to-5V level shifters on EN and PWM lines improves noise margin in the noisy motor environment.
+
+Components:
+
+BTS7960 43A H-Bridge Motor Driver
+BTS7960 43A H-Bridge Motor Driver
+Warnings
+Keep ESP32 signal wires away from high-current motor wires to avoid noise coupling into GPIO lines.
+Step 11: Connect RPLiDAR and Stereo Camera to Jetson Nano
+Plug the RPLiDAR A2M1 USB cable into Jetson Nano USB Port 1. Plug the Binocular Stereo Depth Camera USB 3.0 cable into Jetson Nano USB 3.0 Port 2. Secure all cables with cable ties so they don't snag during robot movement.
+
+Components:
+
+RPLiDAR A2M1 2D Laser Scanner
+Binocular Stereo Depth Camera (USB 3.0)
+Tips
+Label each USB cable at both ends to avoid confusion during debugging.
+Step 12: Connect ESP32 to Jetson Nano via USB
+Plug the ESP32 DevKit v1 into the Jetson Nano's USB port using a standard USB-A to micro-USB cable. The ESP32 will enumerate as a serial device (e.g. /dev/ttyUSB0). The Jetson Nano Python application communicates with the ESP32 over this serial link at 115200 baud, sending DRIVE/STOP/LIDAR_SWEEP commands and receiving IMU telemetry.
+
+Tips
+On the Jetson Nano, use 'ls /dev/ttyUSB*' to identify the ESP32 serial port after plugging it in.
+Step 13: Final Checks Before First Power-On
+Before applying battery power:
+1. Verify all GND connections are tied to the same common bus.
+2. Confirm buck converter output is 5.0V (re-measure with multimeter).
+3. Check that no 14.8V motor rail wire touches any logic pin.
+4. Verify the DRV8825 VMOT capacitor is installed.
+5. Lift the chassis so tracks spin freely — do not place on ground for first test.
+
+Warnings
+Keep hands and loose clothing clear of caterpillar tracks during first motor test.
+Have a LiPo alarm / checker on the battery during initial runs to monitor cell voltage.
