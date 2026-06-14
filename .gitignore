@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.env
+venv/
+*.egg-info/
+
+# Node
+node_modules/
+dist/
+.next/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Models (large files — use Git LFS or link externally)
+*.pt
+*.onnx
+*.tflite
